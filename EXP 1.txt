@@ -1,0 +1,74 @@
+import copy
+
+N = 8  # Size of the chessboard
+
+# Function to print the solution
+def printSolution(board):
+    for row in board:
+        for i in range(N):
+            print("Q" if row[i] else ".", end=" ")
+        print()
+    print()
+
+# Function to check if a queen can be safely placed
+def isSafe(board, row, col):
+    # Check the same column
+    for i in range(row):
+        if board[i][col]:
+            return False
+
+    # Check upper left diagonal
+    for i, j in zip(range(row - 1, -1, -1), range(col - 1, -1, -1)):
+        if board[i][j]:
+            return False
+
+    # Check upper right diagonal
+    for i, j in zip(range(row - 1, -1, -1), range(col + 1, N)):
+        if board[i][j]:
+            return False
+
+    return True
+
+# Solve using backtracking, stop after first solution
+def solve(board, row, solutions):
+    if row == N:
+        solutions.append(copy.deepcopy(board))
+        print("First solution:")
+        printSolution(board)
+        return True  # Stop after first solution
+
+    for col in range(N):
+        if isSafe(board, row, col):
+            board[row][col] = 1
+            if solve(board, row + 1, solutions):
+                return True  # Stop propagation
+            board[row][col] = 0  # Backtrack
+    return False
+
+# Count all solutions without printing
+def countAllSolutions(board, row, counter):
+    if row == N:
+        counter[0] += 1
+        return
+
+    for col in range(N):
+        if isSafe(board, row, col):
+            board[row][col] = 1
+            countAllSolutions(board, row + 1, counter)
+            board[row][col] = 0
+
+# Main function
+def eightQueens():
+    board = [[0 for _ in range(N)] for _ in range(N)]
+
+    # Find and print the first solution
+    solutions = []
+    solve(board, 0, solutions)
+
+    # Count total number of solutions
+    counter = [0]
+    countAllSolutions(board, 0, counter)
+    print(f"Total solutions found: {counter[0]}")
+
+# Run the program
+eightQueens()
