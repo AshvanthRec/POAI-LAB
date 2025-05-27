@@ -1,0 +1,27 @@
+% Given facts
+likes(mary, food).
+likes(mary, wine).
+likes(john, wine).
+likes(john, mary).
+
+% Rules based on the conditions
+likes(john, X) :- likes(mary, X).          % John likes anything Mary likes
+likes(john, Y) :- likes(Y, wine).          % John likes anyone who likes wine
+likes(john, Y) :- likes(Y, Y).             % John likes anyone who likes themselves
+  
+
+prolog code:
+
+
+?- likes(john, food).
+true.    % Because Mary likes food
+
+?- likes(john, wine).
+true.    % Because Mary likes wine (and also John likes wine directly)
+
+?- likes(john, Y).
+Y = wine ;     % Directly liked by John
+Y = mary ;     % John likes Mary directly
+Y = food ;     % Because Mary likes food
+Y = john ;     % Because John likes wine (so he likes himself, per rule 3)
+false.
