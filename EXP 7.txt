@@ -1,0 +1,56 @@
+# Function to check if two predicates can be unified
+def unify(x, y, theta=None):
+    if theta is None:
+        return None
+    elif x == y:
+        return theta
+    elif isinstance(x, str) and x.islower():  # x is a variable
+        return unify_var(x, y, theta)
+    elif isinstance(y, str) and y.islower():  # y is a variable
+        return unify_var(y, x, theta)
+    elif isinstance(x, list) and isinstance(y, list) and len(x) == len(y):
+        return unify(x[1:], y[1:], unify(x[0], y[0], theta))
+    else:
+        return None
+
+# Function to unify a variable with a term
+def unify_var(var, x, theta):
+    if var in theta:
+        return unify(theta[var], x, theta)
+    elif x in theta:
+        return unify(var, theta[x], theta)
+    else:
+        theta[var] = x
+        return theta
+
+# Function to apply resolution rule
+def resolution(kb, fact, query):
+    for clause in kb:
+        premise, conclusion = clause
+        theta = unify(premise, fact, {})
+        if theta is not None:
+            resolved_query = substitute(conclusion, theta)
+            if resolved_query == query:
+                return True
+    return False
+
+# Substitute variables using the substitution theta
+def substitute(expr, theta):
+    return [theta.get(x, x) for x in expr]
+
+# Knowledge base: Human(John) → Mortal(John)
+knowledge_base = [
+    [["Human", "x"], ["Mortal", "x"]]
+]
+
+# Fact: Human(John)
+fact = ["Human", "John"]
+
+# Query: Mortal(John)?
+query = ["Mortal", "John"]
+
+# Apply resolution
+if resolution(knowledge_base, fact, query):
+    print("Query is resolved: John is Mortal")
+else:
+    print("Query could not be resolved")
