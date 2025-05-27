@@ -1,0 +1,103 @@
+# Constants for players
+PLAYER_X = 1   # AI
+PLAYER_O = -1  # Opponent
+EMPTY = 0
+
+# Evaluate the board
+def evaluate(board):
+    # Check rows and columns
+    for i in range(3):
+        if board[i][0] == board[i][1] == board[i][2] != EMPTY:
+            return board[i][0]
+        if board[0][i] == board[1][i] == board[2][i] != EMPTY:
+            return board[0][i]
+
+    # Check diagonals
+    if board[0][0] == board[1][1] == board[2][2] != EMPTY:
+        return board[0][0]
+    if board[0][2] == board[1][1] == board[2][0] != EMPTY:
+        return board[0][2]
+
+    return 0  # No winner
+
+# Check if moves are left
+def isMovesLeft(board):
+    for row in board:
+        if EMPTY in row:
+            return True
+    return False
+
+# Minimax algorithm
+def minimax(board, isMax):
+    score = evaluate(board)
+
+    # If someone has won
+    if score == PLAYER_X:
+        return 1
+    if score == PLAYER_O:
+        return -1
+
+    # If it's a tie
+    if not isMovesLeft(board):
+        return 0
+
+    if isMax:
+        best = -float('inf')
+        for row in range(3):
+            for col in range(3):
+                if board[row][col] == EMPTY:
+                    board[row][col] = PLAYER_X
+                    best = max(best, minimax(board, False))
+                    board[row][col] = EMPTY
+        return best
+    else:
+        best = float('inf')
+        for row in range(3):
+            for col in range(3):
+                if board[row][col] == EMPTY:
+                    board[row][col] = PLAYER_O
+                    best = min(best, minimax(board, True))
+                    board[row][col] = EMPTY
+        return best
+
+# Find the best move for PLAYER_X
+def findBestMove(board):
+    bestVal = -float('inf')
+    bestMove = (-1, -1)
+
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == EMPTY:
+                board[row][col] = PLAYER_X
+                moveVal = minimax(board, False)
+                board[row][col] = EMPTY
+
+                if moveVal > bestVal:
+                    bestMove = (row, col)
+                    bestVal = moveVal
+
+    return bestMove
+
+# Print the board
+def printBoard(board):
+    for row in board:
+        print(" ".join(["X" if x == PLAYER_X else "O" if x == PLAYER_O else "." for x in row]))
+
+# Example game state
+board = [
+    [PLAYER_X, PLAYER_O, PLAYER_X],
+    [PLAYER_O, PLAYER_X, EMPTY],
+    [EMPTY, PLAYER_O, PLAYER_X]
+]
+
+print("Current Board:")
+printBoard(board)
+
+move = findBestMove(board)
+print(f"\nBest Move: {move}")
+
+# Make the move
+board[move[0]][move[1]] = PLAYER_X
+
+print("\nBoard after best move:")
+printBoard(board)
